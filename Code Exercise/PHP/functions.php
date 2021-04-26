@@ -14,34 +14,38 @@ function load_input_file_into_php_array() {
 function convert_array_to_output_format($input_array) {
   print "Converting...\n";
   
- $jsonIterator = new RecursiveIteratorIterator(
-  new RecursiveArrayIterator(json_decode($input_array, TRUE)),
-  RecursiveIteratorIterator::SELF_FIRST);
-
-  $result = '[';
-  foreach ($jsonIterator as $key => $val) {  
-    if(is_array($val)) {
-        if(strpos($key,'bird')===FALSE){
-          if(!$key==0){
-            $result.= '},';
-          }
-        $result.= '{';
+$array = json_decode($input_array, TRUE); 
+$result = array();
+$index = 0;
+ 
+foreach ($array as $x => $y)
+{
+  foreach ($y as $o => $p)
+  {       
+    foreach ($p as $inside => $info)
+    {  
+      foreach($info as $a =>$b)
+      {
+        if($a == 'EnglishName'){
+          $info['name'] = $info[$a];          
+           unset($info[$a]);
         }
-    } else {
-        if($key == 'EnglishName'){
-          $result.= '"name": "' . $val . '",';
+        elseif($a == 'Species'){
+          $info['latin'] = $info[$a];
+          unset($info[$a]);
         }
-        elseif($key == 'Species'){
-          $result.= '"latin": "' . $val . '",';
+        if($a == 'Lifespan'){
+          $info['lifespan'] = $info[$a];          
+           unset($info[$a]);          
         }
-        if($key == 'Lifespan'){
-          $result.= '"lifespan": "' . $val . '"';
-        }
+  
+      }
+      $result[$index] = $info;
+     
+      $index++; 
     }
   }
-
-  $result.= '}';
-  $result.= ']';
+}
 
  return $result;
 }
@@ -50,7 +54,7 @@ function convert_array_to_output_format($input_array) {
 function save_php_array_to_output_file($output_array) {
   print "Saving...\n";    
   
-  return file_put_contents(dirname(__FILE__). "/data/my-output.json", $output_array);
+  return file_put_contents(dirname(__FILE__). "/data/my-output.json", json_encode($output_array));
 }
 
 ########################################################################
